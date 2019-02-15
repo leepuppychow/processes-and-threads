@@ -53,7 +53,12 @@ func InitializeRoot() *Process {
 	return &root
 }
 
+func (p *Process) FindChildren() {
+	
+}
+
 func CreateSingleProcess(PID string) *Process {
+	// use channel generator pattern here
 	processInfo := ExecuteCommand("ps", "-f", "-o", "wq", "-p", PID)[9:]
 	if len(processInfo) == 0 {
 		return nil
