@@ -11,7 +11,6 @@ func TestCreateProcessList(t *testing.T) {
 		0    35     1   0  5:01AM ??         0:04.83 /usr/libexec/Use    4
 		0    36     1   0  5:01AM ??         0:00.74 /usr/sbin/syslog    -
 	`
-
 	proc1 := Process{
 		ProcessId:   1,
 		ThreadCount: 3,
@@ -33,14 +32,13 @@ func TestCreateProcessList(t *testing.T) {
 		Command:     "/usr/sbin/syslog",
 		Duration:    "0:00.74",
 	}
-
 	expected := []Process{
 		proc1,
 		proc2,
 		proc3,
 	}
-
 	actual := CreateProcessList(stdout)
+
 	for i, _ := range actual {
 		if expected[i].ProcessId != actual[i].ProcessId {
 			t.Errorf("Create Process List failed, processId does not match")

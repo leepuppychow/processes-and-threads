@@ -1,7 +1,6 @@
 package processes
 
 import (
-	"fmt"
 	"log"
 	"os/exec"
 	"strings"
@@ -12,36 +11,58 @@ import (
 type Process struct {
 	ProcessId   int
 	ThreadCount int
-	Children    map[string]*Process
+	Children    map[int]*Process
 	Command     string
 	Duration    string
 }
 
-func ExecuteCommand(command string, args ...string) {
+/*
+
+	1. Get all processes (id only)
+	2. Iterate through and Get individual process info (ps -f -p [PID] -o wq)
+	3. Create a Process struct
+	4. Now get children of this process (pgrep -P [PID])
+	5. For each child repeat steps 2-4
+	6. If there are no more children then stop
+
+*/
+
+func ExecuteCommand(command string, args ...string) []string {
 	output, err := exec.Command(command, args...).Output()
 	if err != nil {
-		log.Fatal(err)
+		log.Println(command, err)
 	}
-	fmt.Println(string(output))
-	fmt.Println(CreateProcessList(string(output)))
+	return strings.Fields(string(output))
 }
 
-func CreateProcessList(stdout string) []Process {
-	allProcs := []Process{}
-	for i, line := range strings.Split(strings.TrimSpace(stdout), "\n") {
+func InitializeRoot() *Process {
+	root := Process{
+		ProcessId:   0,
+		ThreadCount: 0,
+		Children:    make(map[int]*Process),
+		Command:     "",
+		Duration:    "",
+	}
+	allPIDs := ExecuteCommand("ps", "-A", "-o", "pid")
+	for i, PID := range allPIDs {
 		if i == 0 {
 			continue
 		}
-		lineSlice := strings.Fields(line)
-		p := Process{
-			ProcessId:   h.ToInt(lineSlice[1]),
-			ThreadCount: h.ToInt(lineSlice[8]),
-			Children:    nil,
-			Command:     lineSlice[7],
-			Duration:    lineSlice[6],
-		}
-		allProcs = append(allProcs, p)
+		root.Children[h.ToInt(PID)] = CreateSingleProcess(PID)
 	}
+	return &root
+}
 
-	return allProcs
+func CreateSingleProcess(PID string) *Process {
+	processInfo := ExecuteCommand("ps", "-f", "-o", "wq", "-p", PID)[9:]
+	if len(processInfo) == 0 {
+		return nil
+	}
+	return &Process{
+		ProcessId:   h.ToInt(processInfo[1]),
+		ThreadCount: h.ToInt(processInfo[8]),
+		Children:    nil,
+		Command:     processInfo[7],
+		Duration:    processInfo[6],
+	}
 }
