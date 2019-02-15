@@ -1,13 +1,15 @@
 package main
 
 import (
+	"fmt"
+	"time"
+
 	p "github.com/leepuppychow/processes-and-threads/processes"
 )
 
 func main() {
-	// all := p.CreateProcessList(p.ExecuteCommand("ps", "-A", "-f", "-o", "wq"))
-	// fmt.Println(all)
-	// fmt.Println(len(all))
-	root := p.InitializeRoot()
-	p.PopulateProcessTree(root)
+	start := time.Now()
+	root := p.MakeProcessTree()
+	fmt.Println(root.Children["300"])
+	fmt.Println(time.Since(start))
 }
