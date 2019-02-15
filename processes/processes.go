@@ -4,8 +4,9 @@ import (
 	"fmt"
 	"log"
 	"os/exec"
-	"strconv"
 	"strings"
+
+	h "github.com/leepuppychow/processes-and-threads/helpers"
 )
 
 type Process struct {
@@ -22,31 +23,19 @@ func ExecuteCommand(command string, args ...string) {
 		log.Fatal(err)
 	}
 	fmt.Println(string(output))
-	CreateProcessList(string(output))
+	fmt.Println(CreateProcessList(string(output)))
 }
 
 func CreateProcessList(stdout string) []Process {
 	allProcs := []Process{}
-	stringLines := strings.Split(strings.TrimSpace(stdout), "\n")
-	for i, line := range stringLines {
+	for i, line := range strings.Split(strings.TrimSpace(stdout), "\n") {
 		if i == 0 {
 			continue
 		}
 		lineSlice := strings.Fields(line)
-		id, err := strconv.Atoi(lineSlice[1])
-		if err != nil {
-			fmt.Println(err)
-		}
-
-		threadCount, err := strconv.Atoi(lineSlice[8])
-		if err != nil {
-			fmt.Println(err)
-			threadCount = 0
-		}
-
 		p := Process{
-			ProcessId:   id,
-			ThreadCount: threadCount,
+			ProcessId:   h.ToInt(lineSlice[1]),
+			ThreadCount: h.ToInt(lineSlice[8]),
 			Children:    nil,
 			Command:     lineSlice[7],
 			Duration:    lineSlice[6],
