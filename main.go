@@ -10,6 +10,9 @@ import (
 func main() {
 	start := time.Now()
 	root := p.MakeProcessTree()
-	fmt.Println(root.Children["300"])
 	fmt.Println(time.Since(start))
+
+	procsWithChildrenCount := make(map[string]int)
+	root.ChildrenCount(procsWithChildrenCount)
+	fmt.Println(procsWithChildrenCount)
 }
