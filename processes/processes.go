@@ -78,7 +78,7 @@ func (p *Process) ChildrenCount(result map[string]int) {
 	result[p.ProcessId] = len(p.Children)
 	for _, c := range p.Children {
 		if c != nil {
-			go c.ChildrenCount(result)
+			c.ChildrenCount(result)
 		}
 	}
 }
