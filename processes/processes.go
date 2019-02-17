@@ -4,15 +4,6 @@ import (
 	h "github.com/leepuppychow/processes-and-threads/helpers"
 )
 
-/*
-	1. Get all processes (PIDs only)
-	2. Iterate through and Get individual process info
-	3. Create a Process struct
-	4. Now get children of this process (pgrep -P [PID])
-	5. For each child repeat steps 2-4
-	6. If there are no more children then stop
-*/
-
 type Process struct {
 	ProcessId   string
 	ThreadCount int
@@ -22,28 +13,12 @@ type Process struct {
 }
 
 func MakeProcessTree() *Process {
-	root := Process{
-		ProcessId:   "root",
-		ThreadCount: 0,
-		Children:    make(map[string]*Process),
-		Command:     "",
-		Duration:    "",
-	}
-	allPIDs := h.ExecuteCommand("ps", "-A", "-o", "pid")
-	for i, PID := range allPIDs {
-		if i == 0 {
-			continue
-		}
-		childProcess := CreateSingleProcess(PID)
-		root.Children[PID] = childProcess
-		if childProcess != nil {
-			go childProcess.FindChildren()
-		}
-	}
-	return &root
+	root := CreateProcess("1")
+	root.FindChildren()
+	return root
 }
 
-func CreateSingleProcess(PID string) *Process {
+func CreateProcess(PID string) *Process {
 	processInfo := h.ExecuteCommand("ps", "-o pid", "-o wq", "-o comm", "-o time", "-p", PID)[4:]
 	if len(processInfo) == 0 {
 		return nil
@@ -63,10 +38,10 @@ func (p *Process) FindChildren() {
 		return
 	}
 	for _, PID := range children {
-		childProcess := CreateSingleProcess(PID)
+		childProcess := CreateProcess(PID)
 		p.Children[PID] = childProcess
 		if childProcess != nil {
-			childProcess.FindChildren()
+			go childProcess.FindChildren()
 		}
 	}
 }
