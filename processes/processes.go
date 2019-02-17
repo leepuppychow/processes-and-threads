@@ -13,12 +13,12 @@ type Process struct {
 }
 
 func MakeProcessTree() *Process {
-	root := CreateSingleProcess("1")
+	root := CreateProcess("1")
 	root.FindChildren()
 	return root
 }
 
-func CreateSingleProcess(PID string) *Process {
+func CreateProcess(PID string) *Process {
 	processInfo := h.ExecuteCommand("ps", "-o pid", "-o wq", "-o comm", "-o time", "-p", PID)[4:]
 	if len(processInfo) == 0 {
 		return nil
@@ -38,7 +38,7 @@ func (p *Process) FindChildren() {
 		return
 	}
 	for _, PID := range children {
-		childProcess := CreateSingleProcess(PID)
+		childProcess := CreateProcess(PID)
 		p.Children[PID] = childProcess
 		if childProcess != nil {
 			go childProcess.FindChildren()
