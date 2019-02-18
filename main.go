@@ -15,4 +15,6 @@ func main() {
 	procsWithChildrenCount := make(map[string]int)
 	root.ChildrenCount(procsWithChildrenCount)
 	fmt.Println(procsWithChildrenCount)
+
+	//test
 }
